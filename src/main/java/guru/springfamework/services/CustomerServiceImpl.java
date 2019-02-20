@@ -2,6 +2,7 @@ package guru.springfamework.services;
 
 import guru.springfamework.api.v1.mapper.CustomerMapper;
 import guru.springfamework.api.v1.model.CustomerDTO;
+import guru.springfamework.controllers.v1.CustomerController;
 import guru.springfamework.domain.Customer;
 import guru.springfamework.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
                 //.map(customerMapper::customerToCustomerDTO)
                 .map(customer ->{
                     CustomerDTO customerDTO = customerMapper.customerToCustomerDTO(customer);
-                    customerDTO.setCustomerURL("/api/v1/customers/" + customer.getId());
+                    customerDTO.setCustomerURL(getCustomerURL(customer.getId()));
                     return customerDTO;
                 })
                 .collect(Collectors.toList());
@@ -49,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDTO getCustomerById(Long id) {
         return customerRepository.findById(id)
                 .map(customerMapper::customerToCustomerDTO)
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerDTO saveAndReturnDTO(Customer customer) {
         Customer savedCustomer = customerRepository.save(customer);
         CustomerDTO returnDto = customerMapper.customerToCustomerDTO(savedCustomer);
-        returnDto.setCustomerURL("/api/v1/customer/" + savedCustomer.getId());
+        returnDto.setCustomerURL(getCustomerURL(savedCustomer.getId()));
         return returnDto;
     }
 
@@ -83,15 +84,19 @@ public class CustomerServiceImpl implements CustomerService {
             }
             CustomerDTO returnDto = customerMapper.customerToCustomerDTO(customerRepository.save(customer));
 
-            returnDto.setCustomerURL("/api/v1/customer/" + id);
+            returnDto.setCustomerURL(getCustomerURL(id));
 
             return returnDto;
-        }).orElseThrow(RuntimeException::new);
+        }).orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override
     public void deleteCustomerById(Long id) {
         customerRepository.deleteById(id);
+    }
+
+    public String getCustomerURL(Long id) {
+        return CustomerController.BASE_URL + "/" + id;
     }
 }
 
