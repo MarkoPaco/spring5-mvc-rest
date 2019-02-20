@@ -4,13 +4,9 @@ import guru.springfamework.api.v1.model.CategoryDTO;
 import guru.springfamework.api.v1.model.CategoryListDTO;
 import guru.springfamework.services.CategoryService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping(CategoryController.BASE_URL)
 public class CategoryController {
 
@@ -22,17 +18,32 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping
+    //Old version without RestController annotation
+    /*@GetMapping
     public ResponseEntity<CategoryListDTO> getAllCategories(){
 
         return new ResponseEntity<CategoryListDTO>(
                 new CategoryListDTO(categoryService.getAllCategories()), HttpStatus.OK);
+    }*/
+
+    //With RestController annotation we automatically return a ResponseBody
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryListDTO getAllCategories() {
+        return new CategoryListDTO(categoryService.getAllCategories());
     }
 
-    @GetMapping("{name}")
+    //Old version without RestController annotation
+    /*@GetMapping("{name}")
     public ResponseEntity<CategoryDTO> getCategoryByName(@PathVariable String name) {
         return new ResponseEntity<CategoryDTO>(
                 categoryService.getCategoryByName(name), HttpStatus.OK
         );
+    }*/
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryDTO getCategoryByName(@PathVariable String name) {
+        return categoryService.getCategoryByName(name);
     }
 }
